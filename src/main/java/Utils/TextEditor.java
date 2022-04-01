@@ -5,6 +5,8 @@ import javax.swing.*;
 public class TextEditor extends JFrame {
 
     private JPanel _panel;
+    private JTextArea _textArea;
+    private JScrollBar _scrollBar;
 
     public TextEditor(String title) {
         super(title);

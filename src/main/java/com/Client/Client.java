@@ -1,6 +1,4 @@
-package Client;
-
-import Utils.TextEditor;
+package com.Client;
 
 public class Client implements  IClient {
 
