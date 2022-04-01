@@ -1,4 +1,4 @@
-package TextEditor;
+package Utils;
 
 import javax.swing.*;
 
