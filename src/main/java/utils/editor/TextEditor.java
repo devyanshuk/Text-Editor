@@ -37,6 +37,7 @@ public class TextEditor
         this.pack();
         setSize(800,600);
         addComponentListeners();
+        this.setVisible(true);
     }
 
 
@@ -65,16 +66,7 @@ public class TextEditor
     }
 
     private int showMessageBox(String message, int option, int type) {
-        var res= JOptionPane.showOptionDialog(
-                this,
-                message,
-                null,
-                option,
-                type,
-                null,
-                null,
-                null);
-        return res;
+        return JOptionPane.showOptionDialog(this, message,null, option, type,null,null, null);
     }
 
 
@@ -168,6 +160,5 @@ public class TextEditor
 
     public static void main(String[] args) {
         var frame = new TextEditor();
-        frame.setVisible(true);
     }
 }
