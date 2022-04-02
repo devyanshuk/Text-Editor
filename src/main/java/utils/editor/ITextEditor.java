@@ -4,6 +4,8 @@ import java.awt.event.*;
 public interface ITextEditor
         extends MouseWheelListener, KeyListener {
 
+    String UNNAMED = "unnamed";
+    String FILE_ALREADY_PRESENT = "File already present. Do you want to overwrite?";
     String SAVE_WARN = "File not saved. Do you want to save it?";
     String NO_FILE_WARN = "No such file found.";
     String WRITE_ERR = "Error while saving the file";

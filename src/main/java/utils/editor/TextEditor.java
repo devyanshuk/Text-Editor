@@ -7,30 +7,28 @@ import java.awt.event.*;
 import java.io.FileWriter;
 import java.nio.file.*;
 import java.io.IOException;
-
-import static utils.types.FileMenuBarTypes.*;
+import java.io.File;
 
 public class TextEditor
         extends JFrame
         implements ITextEditor {
 
     private JPanel _panel;
-    private JMenuBar _menuBar;
     private JTextArea _textArea;
     private JScrollPane _scrollPane;
     private JFileChooser _fileChooser;
 
 
     private boolean _contentChanged;
-    private String _filePath;
-    private String _fileName;
+    private String _filePath="";
+    private String _fileName="";
 
-    public TextEditor(String title) {
-        super(title);
+    public TextEditor() {
+        super(UNNAMED);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(_panel);
-        _scrollPane = new JScrollPane(_textArea);
-        _scrollPane.addMouseWheelListener(this::mouseWheelMoved);
+        var _scrollPane = new JScrollPane(_textArea);
+        _scrollPane.addMouseWheelListener(this);
         super.setContentPane(_scrollPane);
         this.initMenuBar();
         initFileProperties();
@@ -49,11 +47,11 @@ public class TextEditor
     }
 
     private void initMenuBar() {
-        _menuBar = new JMenuBar();
-        var menu = new JMenu(File.toString());
-        var newM = new JMenuItem(New.toString());
-        var saveM = new JMenuItem(Save.toString());
-        var openM = new JMenuItem(Open.toString());
+        var _menuBar = new JMenuBar();
+        var menu = new JMenu(FileMenuBarTypes.File.toString());
+        var newM = new JMenuItem(FileMenuBarTypes.New.toString());
+        var saveM = new JMenuItem(FileMenuBarTypes.Save.toString());
+        var openM = new JMenuItem(FileMenuBarTypes.Open.toString());
         newM.addActionListener((e) -> initEditor());
         saveM.addActionListener((e) -> handleFileSave());
         openM.addActionListener((e) -> handleFileOpen());
@@ -87,6 +85,7 @@ public class TextEditor
                 case JOptionPane.YES_OPTION -> saveProgress();
             }
         }
+        this.setTitle(UNNAMED);
         _textArea.setText("");
         _contentChanged = false;
         _filePath = "";
@@ -105,12 +104,11 @@ public class TextEditor
     }
 
     public void handleFileOpen() {
-        if (handleFileChooser(Open)) {
+        if (handleFileChooser(FileMenuBarTypes.Open)) {
             var file = _fileChooser.getSelectedFile();
             _filePath = file.getAbsolutePath();
             try {
                 var content = new String(Files.readAllBytes(Path.of(_filePath)));
-                System.out.println(content);
                 _textArea.setText(content);
                 _fileName = file.getName();
                 this.setTitle(_fileName);
@@ -121,12 +119,21 @@ public class TextEditor
         }
     }
 
+    private boolean fileIsAlreadyPresent(String path) {
+        return new File(path).exists();
+    }
+
     public void handleFileSave() {
-        if (!_fileName.isBlank() && !_filePath.isBlank() && handleFileChooser(Save)) {
+        if (handleFileChooser(FileMenuBarTypes.Save)) {
             var file = _fileChooser.getSelectedFile();
             _filePath = file.getAbsolutePath();
-            try {
-                var writer = new FileWriter(_filePath);
+            try(var writer = new FileWriter(_filePath)) {
+                if (fileIsAlreadyPresent(_filePath)) {
+                    var n= showMessageBox(FILE_ALREADY_PRESENT, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (n == JOptionPane.NO_OPTION) {
+                        return;
+                    }
+                }
                 writer.write(_textArea.getText());
             }
             catch (IOException e) {
@@ -140,7 +147,7 @@ public class TextEditor
         _fileChooser.setVisible(true);
         _fileChooser.setAcceptAllFileFilterUsed(false);
 
-        var res = type == Open
+        var res = type == FileMenuBarTypes.Open
                 ? _fileChooser.showOpenDialog(this)
                 : _fileChooser.showSaveDialog(this);
         System.out.println(res);
@@ -160,7 +167,7 @@ public class TextEditor
     }
 
     public static void main(String[] args) {
-        var frame = new TextEditor("Title");
+        var frame = new TextEditor();
         frame.setVisible(true);
     }
 }
