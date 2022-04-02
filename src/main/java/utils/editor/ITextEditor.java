@@ -1,4 +1,4 @@
-package utils;
+package utils.editor;
 import java.awt.event.*;
 
 public interface ITextEditor

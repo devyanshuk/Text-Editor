@@ -1,4 +1,4 @@
-package utils;
+package utils.editor;
 
 import utils.types.*;
 import javax.swing.*;
