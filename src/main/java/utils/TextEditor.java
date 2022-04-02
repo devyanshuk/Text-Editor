@@ -1,6 +1,7 @@
 package utils;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 import java.awt.Color;
 import java.awt.event.*;
 
@@ -15,11 +16,15 @@ public class TextEditor
     private JTextArea _textArea;
     private JScrollBar _scrollBar;
 
+    private boolean contentChanged;
+
     public TextEditor(String title) {
         super(title);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(_panel);
         this.initMenuBar();
+        var caret = (DefaultCaret)_textArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         this.pack();
         setSize(800,600);
         addComponentListeners();
@@ -45,11 +50,34 @@ public class TextEditor
 
 
     public void initEditor() {
+        if (contentChanged) {
+            Object[] options = {"Yes","No"};
+            int n = JOptionPane.showOptionDialog(
+                    this,
+                    "File not saved. Would you like to save it?",
+                    "Warning",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    options,
+                    options[1]);
+            if (n == 0) {
+                saveProgress();
+            }
+        }
         _textArea.setText("");
     }
 
     public void saveProgress() {
         System.out.println("SAVE PROGRESS");
+        contentChanged = false;
+    }
+
+    public void contentChanged() {
+        if (_textArea.getText() != "") {
+            contentChanged = true;
+        }
+        _textArea.setCaretPosition(_textArea.getDocument().getLength());
     }
 
     public void openNew() {
@@ -58,6 +86,7 @@ public class TextEditor
 
     private void addComponentListeners() {
         _textArea.addMouseWheelListener(this);
+        _textArea.addKeyListener(this);
         _scrollBar.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -70,6 +99,9 @@ public class TextEditor
                 _scrollBar.setBackground(Color.getColor("#929298"));
             }
         });
+
+        _scrollBar.addAdjustmentListener(e ->
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum()));
     }
 
 

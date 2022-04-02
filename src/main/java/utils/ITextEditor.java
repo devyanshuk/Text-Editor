@@ -4,19 +4,22 @@ import java.awt.event.*;
 public interface ITextEditor
         extends MouseWheelListener, KeyListener {
 
-
     void initEditor();
 
     void saveProgress();
 
     void openNew();
 
+    void contentChanged();
+
     @Override
-    default void keyTyped(KeyEvent e) {}
+    default void keyTyped(KeyEvent e) {
+        contentChanged();
+    }
 
     @Override
     default void keyPressed(KeyEvent e) {
-        if(e.isControlDown()) {
+        if(e.isControlDown()  || e.isMetaDown()) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_N: {
                     initEditor();
@@ -27,7 +30,6 @@ public interface ITextEditor
                 case KeyEvent.VK_S: {
                     saveProgress();
                 }
-
             }
         }
     }
