@@ -27,7 +27,7 @@ public class TextEditor
         super(UNNAMED);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(_panel);
-        var _scrollPane = new JScrollPane(_textArea);
+        _scrollPane = new JScrollPane(_textArea);
         _scrollPane.addMouseWheelListener(this);
         super.setContentPane(_scrollPane);
         this.initMenuBar();
@@ -92,7 +92,6 @@ public class TextEditor
         if (!_textArea.getText().isBlank()) {
             _contentChanged = true;
         }
-        _textArea.setCaretPosition(_textArea.getDocument().getLength());
     }
 
     public void changeText(String newText) {
