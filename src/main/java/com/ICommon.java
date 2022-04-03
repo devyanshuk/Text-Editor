@@ -1,6 +1,6 @@
 package com;
 
 public interface ICommon {
-    int PORT = 8000;
+    int PORT = 1234;
     String HOST = "localhost";
 }

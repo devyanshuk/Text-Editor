@@ -95,6 +95,18 @@ public class TextEditor
         _textArea.setCaretPosition(_textArea.getDocument().getLength());
     }
 
+    public boolean isChanged() {
+        return _contentChanged;
+    }
+
+    public void changeText(String newText) {
+        _textArea.setText(newText);
+    }
+
+    public String getText() {
+        return _textArea.getText();
+    }
+
     public void handleFileOpen() {
         if (handleFileChooser(FileMenuBarTypes.Open)) {
             var file = _fileChooser.getSelectedFile();

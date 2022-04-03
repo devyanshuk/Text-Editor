@@ -11,7 +11,14 @@ public interface ITextEditor
     String WRITE_ERR = "Error while saving the file";
     String USER_DIR = System.getProperty("user.dir");
 
-    void initEditor();;
+
+    void initEditor();
+
+    void changeText(String newText);
+
+    boolean isChanged();
+
+    String getText();
 
     void contentChanged();
 
