@@ -1,18 +1,14 @@
 package com.Server;
 
-import com.Client.IClient;
 import com.ICommon;
-import utils.editor.TextEditor;
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
 
 
 public class Server
         implements IServer, ICommon {
 
-    private ServerSocket _server;
-    private ArrayList<IClient> _clients;
+    private final ServerSocket _server;
 
     public Server(ServerSocket server) {
         _server = server;
@@ -22,9 +18,8 @@ public class Server
         int id = 0;
         while (!_server.isClosed()) {
             try {
-                assert _server != null;
                 var clientSocket = _server.accept();
-                System.out.println("A new client has connected");
+                System.out.println("A new client has connected. Id = " + id);
                 var clientHandler = new ClientHandler(clientSocket, id++);
                 var thread = new Thread(clientHandler);
                 thread.start();

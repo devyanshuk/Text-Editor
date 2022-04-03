@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class ClientHandler implements Runnable {
 
     private Socket _clientSocket;
-    private BufferedReader _reader;
-    private BufferedWriter _writer;
+    private ObjectInputStream _reader;
+    private ObjectOutputStream _writer;
     private int _id;
 
     private static ArrayList<ClientHandler> _clients;
@@ -19,13 +19,13 @@ public class ClientHandler implements Runnable {
     }
 
     public ClientHandler(Socket clientSocket, int id) {
-        try(var reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            var writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream())))
+        try
         {
+            _writer = new ObjectOutputStream(clientSocket.getOutputStream());
+             _writer.flush();
+            _reader = new ObjectInputStream(clientSocket.getInputStream());
             _clientSocket = clientSocket;
             _id = id;
-            _writer = writer;
-            _reader = reader;
             _clients.add(this);
         }
         catch (IOException e) {
@@ -34,12 +34,13 @@ public class ClientHandler implements Runnable {
     }
 
     private void close() {
+        removeClient();
         try {
-            _reader.close();
-            _writer.close();
-            _clientSocket.close();
+            if (_reader != null) _reader.close();
+            if (_writer != null) _writer.close();
+            if (_clientSocket != null) _clientSocket.close();
         }
-        catch (IOException | NullPointerException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -48,8 +49,7 @@ public class ClientHandler implements Runnable {
         for (var client : _clients) {
             try {
                 if (this._id != client._id) {
-                    client._writer.write(message);
-                    client._writer.newLine();
+                    client._writer.writeUTF(message);
                     client._writer.flush();
                 }
             }
@@ -61,13 +61,18 @@ public class ClientHandler implements Runnable {
 
     private void removeClient() {
         _clients.remove(this);
+        System.out.println("Client with id " + _id + " has left");
     }
 
     @Override
     public void run() {
         while(_clientSocket.isConnected()) {
-            var newText = _reader.lines().toString();
-            broadcast(newText);
+            try {
+                var newText = _reader.readUTF();
+                broadcast(newText);
+            } catch(Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }

@@ -1,27 +1,27 @@
 package com.Client;
 
 import com.ICommon;
-import utils.editor.ITextEditor;
 import utils.editor.TextEditor;
 
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.*;
 
-public class Client implements IClient, ICommon {
+public class Client
+        extends TextEditor
+        implements IClient, ICommon {
 
     private Socket _socket;
-    private BufferedReader _reader;
-    private BufferedWriter _writer;
-    private ITextEditor _textEditor;
+    private ObjectInputStream _reader;
+    private ObjectOutputStream _writer;
 
     public Client(Socket socket) {
-        try(var reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            var writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())))
+        try
         {
+            _writer = new ObjectOutputStream(socket.getOutputStream());
+            _writer.flush();
+            _reader = new ObjectInputStream(socket.getInputStream());
             _socket = socket;
-            _reader = reader;
-            _writer = writer;
-            _textEditor = new TextEditor();
         }
         catch(IOException e) {
             close();
@@ -30,13 +30,10 @@ public class Client implements IClient, ICommon {
 
     private void run() {
         new Thread(() -> {
-            while(_socket.isConnected()) {
+            while (_socket.isConnected()) {
                 try {
-                    _textEditor.changeText(_reader.lines().toString());
-                    if (_textEditor.isChanged()) {
-                        _writer.write(_textEditor.getText());
-                        _writer.flush();
-                    }
+                    var newText= _reader.readUTF();
+                    this.changeText(newText);
                 } catch (IOException e) {
                     close();
                     break;
@@ -55,6 +52,18 @@ public class Client implements IClient, ICommon {
             ex.printStackTrace();
         }
     }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        try {
+            _writer.writeUTF(this.getText());
+            _writer.flush();
+        }
+        catch(IOException ex) {
+            close();
+        }
+    }
+
 
     public static void main(String[] args) {
         try {

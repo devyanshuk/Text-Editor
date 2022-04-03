@@ -16,10 +16,6 @@ public interface ITextEditor
 
     void changeText(String newText);
 
-    boolean isChanged();
-
-    String getText();
-
     void contentChanged();
 
     void handleFileOpen();
@@ -43,5 +39,6 @@ public interface ITextEditor
     }
 
     @Override
-    default void keyReleased(KeyEvent e) {}
+    default void keyReleased(KeyEvent e) {
+    }
 }
