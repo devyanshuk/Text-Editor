@@ -7,14 +7,37 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.*;
 
+/**
+ * A child of the text-editor class that has some specific
+ * methods implemented in a different way.
+ * It continuously checks if the text has been changed, and if so,
+ * it updates the text field.
+ */
 public class Client
         extends TextEditor
         implements IClient, ICommon {
 
+    /**
+     * A socket instance to help
+     * communicate to the server
+     */
     private Socket _socket;
+    /**
+     * Input stream to read data
+     * from other clients
+     */
     private ObjectInputStream _reader;
+    /**
+     * Output stream to send data
+     * to other clients
+     */
     private ObjectOutputStream _writer;
 
+    /**
+     * Constructor of the client class
+     * @param socket A socket instance that contains
+     *               the host and the port informations.
+     */
     public Client(Socket socket) {
         try
         {
@@ -28,20 +51,28 @@ public class Client
         }
     }
 
-    private void run() {
-        new Thread(() -> {
-            while (_socket.isConnected()) {
-                try {
-                    var newText= _reader.readUTF();
-                    this.changeText(newText);
-                } catch (IOException e) {
-                    close();
-                    break;
-                }
+    /**
+     * Loop until there is a socket connection, read
+     * data from other clients and update the text
+     * field accordingly.
+     */
+    @Override
+    public void run() {
+        while (_socket.isConnected()) {
+            try {
+                var newText= _reader.readUTF();
+                this.changeText(newText);
+            } catch (IOException e) {
+                close();
+                break;
             }
-        }).start();
+        }
     }
 
+    /**
+     * When a client is disconnected, dispose the
+     * reader, writer and the socket.
+     */
     private void close() {
         try {
             if (_writer != null) _writer.close();
@@ -53,6 +84,13 @@ public class Client
         }
     }
 
+    /**
+     * When the other clients release their keys, broadcast
+     * and update the text area of all other clients.
+     *
+     * @param e Args supplied that provides detail about
+     *          the key released
+     */
     @Override
     public void keyReleased(KeyEvent e) {
         try {
@@ -64,10 +102,13 @@ public class Client
         }
     }
 
-
+    /**
+     * Entry point of the client class
+     * @param args args supplied from the terminal
+     */
     public static void main(String[] args) {
         try {
-            var client = new Client(new Socket(HOST, PORT));
+            var client = new Thread(new Client(new Socket(HOST, PORT)));
             client.run();
         }
         catch(IOException e) {

@@ -4,20 +4,55 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
+/**
+ * A class that contains all information of the
+ * clients connected to a server, and contains
+ * client entry/exit handlers.
+ */
 public class ClientHandler implements Runnable {
 
+    /**
+     * A socket instance that contains the port,
+     * the host information.
+     */
     private Socket _clientSocket;
+    /**
+     * An input stream that reads data broadcasted
+     * by some client.
+     */
     private ObjectInputStream _reader;
+    /**
+     * An output stream that broadcasts information
+     * provided by some client
+     */
     private ObjectOutputStream _writer;
+    /**
+     * An integer 0..n that uniquely identifies
+     * client in the server.
+     */
     private int _id;
 
+    /**
+     * A static array that contains the socket, id, input
+     * and output information of all clients.
+     */
     private static ArrayList<ClientHandler> _clients;
 
 
+    /**
+     * Since the array is static, we use a static
+     * constructor.
+     */
     static {
             _clients = new ArrayList<>();
     }
 
+    /**
+     * The ClientHandler constructor. It initializes the
+     * writer, reader, id and updates the clients array.
+     * @param clientSocket A socket instance that contains the host, port, etc
+     * @param id Unique id of a client on the server.
+     */
     public ClientHandler(Socket clientSocket, int id) {
         try
         {
@@ -33,6 +68,11 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * When this method is called, remove this client from
+     * the server, close the reader and writer, and the
+     * client socket.
+     */
     private void close() {
         removeClient();
         try {
@@ -45,6 +85,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * When a client sends a 'message', i.e. when the
+     * client types in new texts in their editor, broadcast
+     * this information to all other clients.
+     * @param message Message to be broadcasted
+     */
     private void broadcast(String message) {
         for (var client : _clients) {
             try {
@@ -59,11 +105,19 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Remove this instance from the _clients list and display
+     * that information in the server.
+     */
     private void removeClient() {
         _clients.remove(this);
         System.out.println("Client with id " + _id + " has left");
     }
 
+    /**
+     * While there is a socket connection, read messages from
+     * a client and broadcast the message to other clients.
+     */
     @Override
     public void run() {
         while(_clientSocket.isConnected()) {
@@ -71,7 +125,8 @@ public class ClientHandler implements Runnable {
                 var newText = _reader.readUTF();
                 broadcast(newText);
             } catch(Exception e) {
-                System.out.println(e.getMessage());
+                close();
+                return;
             }
         }
     }
