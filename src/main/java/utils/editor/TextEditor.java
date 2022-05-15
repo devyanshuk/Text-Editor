@@ -13,6 +13,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
+import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
 import java.nio.file.Files;
@@ -81,7 +82,12 @@ public class TextEditor
      */
     public TextEditor() {
         super(UNNAMED);
+        _textArea = new JTextArea();
+        _textArea.setMinimumSize(new Dimension(150,150));
+        _textArea.setLineWrap(false);
+        _textArea.setBackground(new Color(-1901569));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        _panel = new JPanel();
         this.setContentPane(_panel);
         _scrollPane = new JScrollPane(_textArea);
         _scrollPane.addMouseWheelListener(this);

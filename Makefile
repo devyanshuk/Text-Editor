@@ -1,5 +1,6 @@
-BUILD_DIR = bin
+BUILD_DIR = target
 SRC_DIR = src
+INSTALL_DIR = $(addsuffix /classes/, $(BUILD_DIR))
 
 JAVAC = javac
 JAVA = java
@@ -10,23 +11,28 @@ TEXT_EDITOR_CLASS = utils.editor.TextEditor
 SERVER_CLASS = com.Server.Server
 CLIENT_CLASS = com.Client.Client
 
+MVN = mvn
+
 RM = rm -rf
 
 ALL_SRC = $(shell find $(SRC_DIR) -name '*.java')
 
-.PHONY: compile editor server client clean
+.PHONY: install editor server client clean
 
-compile:
-	$(JAVAC) $(CLASS_PATH_FLAG) $(SRC_DIR) $(TARGET_DIR_FLAG) $(BUILD_DIR) $(ALL_SRC)
+install:
+	$(MVN) install
 
-editor: compile
-	$(JAVA) $(CLASS_PATH_FLAG) $(BUILD_DIR) $(TEXT_EDITOR_CLASS)
+$(BUILD_DIR): ${ALL_SRC}
+	${MVN} install
 
-server: compile
-	$(JAVA) $(CLASS_PATH_FLAG) $(BUILD_DIR) $(SERVER_CLASS)
+editor: ${BUILD_DIR}
+	$(JAVA) $(CLASS_PATH_FLAG) $(INSTALL_DIR) $(TEXT_EDITOR_CLASS)
 
-client: compile
-	$(JAVA) $(CLASS_PATH_FLAG) $(BUILD_DIR) $(CLIENT_CLASS)
+server: ${BUILD_DIR}
+	$(JAVA) $(CLASS_PATH_FLAG) $(INSTALL_DIR) $(SERVER_CLASS)
+
+client: ${BUILD_DIR}
+	$(JAVA) $(CLASS_PATH_FLAG) $(INSTALL_DIR) $(CLIENT_CLASS)
 
 clean:
 	$(RM) $(BUILD_DIR)
