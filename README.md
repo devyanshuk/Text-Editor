@@ -36,3 +36,13 @@ $ make client
 ```
 $ make editor
 ```
+
+#### Create javadoc for the whole project inside the doc directory
+```
+$ make javadoc
+```
+
+#### Clean the project
+```
+$ make clean
+```
