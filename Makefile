@@ -19,12 +19,6 @@ ALL_SRC = $(shell find $(SRC_DIR) -name '*.java')
 
 .PHONY: install editor server client clean
 
-install:
-	$(MVN) install
-
-$(BUILD_DIR): ${ALL_SRC}
-	${MVN} install
-
 editor: ${BUILD_DIR}
 	$(JAVA) $(CLASS_PATH_FLAG) $(INSTALL_DIR) $(TEXT_EDITOR_CLASS)
 
@@ -33,6 +27,12 @@ server: ${BUILD_DIR}
 
 client: ${BUILD_DIR}
 	$(JAVA) $(CLASS_PATH_FLAG) $(INSTALL_DIR) $(CLIENT_CLASS)
+
+${BUILD_DIR} : ${ALL_SRC}
+	[ ! -d ${BUILD_DIR} ] && ${MVN} install || echo "${BUILD_DIR} already present."
+
+install: ${ALL_SRC}
+	${MVN} install
 
 clean:
 	$(RM) $(BUILD_DIR)
